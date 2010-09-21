@@ -816,8 +816,14 @@ def object_meta_data(request, id, template_name="lfc/manage/object_meta_data.htm
     if request.method == "POST":
         obj.check_permission(request.user, "edit")
         form = MetaDataForm(instance=obj, data=request.POST)
-
         if form.is_valid():
+
+            if request.POST.get("start_date_0", "") == "" and request.POST.get("start_date_1", "") == "":
+                obj.start_date = None
+            if request.POST.get("end_date_0", "") == "" and request.POST.get("end_date_1", "") == "":
+                obj.end_date = None
+            if request.POST.get("publication_date_0", "") == "" and request.POST.get("publication_date_1", "") == "":
+                obj.publication_date = None
             message = _(u"Meta data has been saved.")
             form.save()
             form = MetaDataForm(instance=_update_positions(obj, True))
@@ -1711,13 +1717,10 @@ def _navigation_children(request, current_objs, obj, start_level, level=3):
     return result
 
 # actions
+@login_required
 def set_navigation_tree_language(request, language):
     """Sets the language for the navigation tree.
     """
-    portal = get_portal()
-
-    portal.check_permission(request.user, "manage_portal")
-
     id = request.REQUEST.get("id")
     if id:
         obj = lfc.utils.get_content_object(pk=id)
@@ -1733,11 +1736,10 @@ def set_navigation_tree_language(request, language):
     return return_as_json(html, _(u"Tree language has been changed."))
 
 
+@login_required
 def set_language(request, language):
     """Sets the language of the portal.
     """
-    get_portal().check_permission(request.user, "manage_portal")
-
     translation.activate(language)
     response = HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
@@ -3133,6 +3135,7 @@ def user_password(request, id, form=None, template_name="lfc/manage/user_passwor
 
     return render_to_string(template_name, RequestContext(request, {
         "form" : form,
+        "user_id" : user.id,
     }))
 
 def user_navigation(request, id, template_name="lfc/manage/user_navigation.html"):
