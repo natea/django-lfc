@@ -120,7 +120,7 @@ def add_object(request, language=None, id=None):
     type = request.REQUEST.get("type", "page")
     ct = ContentType.objects.filter(model=type)[0]
     mc = ct.model_class()
-    form = mc().form
+    form = mc().add_form
 
     try:
         parent_object = lfc.utils.get_content_object(pk=id)
@@ -140,8 +140,9 @@ def add_object(request, language=None, id=None):
                 language = parent_object.language
             else:
                 language = request.session.get("nav-tree-lang", settings.LANGUAGE_CODE)
-
-            new_object = form.save(commit=False)
+            
+            data = form.cleaned_data
+            new_object = mc.objects.create(**data)
 
             # Find unique slug
             i = 1
@@ -938,7 +939,7 @@ def object_core_data(request, obj, template_name="lfc/manage/object_data.html"):
     """
     obj_ct = ContentType.objects.filter(model=obj.content_type)[0]
 
-    Form = obj.form
+    Form = obj.edit_form
 
     if request.method == "POST":
         obj.check_permission(request.user, "edit")
