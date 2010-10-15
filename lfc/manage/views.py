@@ -1952,6 +1952,7 @@ def delete_portlet(request, portletassignment_id):
     except PortletAssignment.DoesNotExist:
         pass
     else:
+        pa.portlet.delete()
         pa.delete()
         lfc.utils.clear_cache()
         update_portlet_positions(pa)
