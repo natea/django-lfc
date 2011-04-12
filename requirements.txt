@@ -1,0 +1,8 @@
+django-contact-form
+django-pagination==1.0.7
+django-permissions>=1.0<1.1
+django-portlets>=1.0<1.1
+django-workflows>=1.0<1.1
+tagging==0.5
+feedparser
+lfc_theme>=1.0<1.1
